@@ -31,9 +31,12 @@ extern "C" {
 
 #define MAX_PUMPS 1          // Number of pumps in the system
 
-#define PUMP_ON_DELAY  250 //ms
-#define PUMP_OFF_DELAY 60000//ms  //14400000
+#define PUMP_ON_DELAY  2500 //ms
+#define PUMP_OFF_DELAY 30000//ms  //14400000
 
+//jqc-3ff-s-z relay is active low
+#define PUMP_RELAY_ON GPIO_PIN_RESET
+#define PUMP_RELAY_OFF GPIO_PIN_SET
 
 void irrigation_init(void);
 void irrigation_run(void);

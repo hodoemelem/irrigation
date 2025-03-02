@@ -1,7 +1,7 @@
 #include <pump.h>
 #include "main.h"
-#include <stdint.h>             // For uint32_t, uint16_t, etc.
-#include <stdbool.h>            // For bool, true, false
+#include <stdint.h>  
+#include <stdbool.h> 
 
 typedef enum
 {
@@ -27,11 +27,12 @@ void irrigation_init(void)
     {
         irrigation_pump[i].state = INIT;
         irrigation_pump[i].on_pump_start_time = 0;
-        irrigation_pump[i].off_pump_start_time = HAL_GetTick();
+        irrigation_pump[i].off_pump_start_time = 0;
         irrigation_pump[i].on_pump = false;
 
         // Ensure the pump is off initially
-        HAL_GPIO_WritePin(pump_GPIO_Port, pump_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(pump_GPIO_Port, pump_Pin,PUMP_RELAY_OFF);
+        HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET); 
     }
 }
 
@@ -44,7 +45,8 @@ void irrigation_run(void)
         {
         case INIT:
             // Turn on the pump
-            HAL_GPIO_WritePin(pump_GPIO_Port, pump_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(pump_GPIO_Port, pump_Pin, PUMP_RELAY_ON);
+            HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET); 
             irrigation_pump[i].on_pump = true;
             irrigation_pump[i].on_pump_start_time = HAL_GetTick();
             irrigation_pump[i].state = RUN;
@@ -56,7 +58,8 @@ void irrigation_run(void)
                 // Check if ON duration has elapsed (seconds)
                 if ((HAL_GetTick() - irrigation_pump[i].on_pump_start_time) >= PUMP_ON_DELAY)
                 {
-                    HAL_GPIO_WritePin(pump_GPIO_Port, pump_Pin, GPIO_PIN_RESET);
+                    HAL_GPIO_WritePin(pump_GPIO_Port, pump_Pin, PUMP_RELAY_OFF);
+                    HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
                     irrigation_pump[i].on_pump = false;
                     irrigation_pump[i].off_pump_start_time = HAL_GetTick();
                 }
@@ -66,7 +69,8 @@ void irrigation_run(void)
                 // Check if OFF duration has elapsed (seconds)
                 if ((HAL_GetTick() - irrigation_pump[i].off_pump_start_time) >= PUMP_OFF_DELAY)
                 {
-                    HAL_GPIO_WritePin(pump_GPIO_Port, pump_Pin, GPIO_PIN_SET);
+                    HAL_GPIO_WritePin(pump_GPIO_Port, pump_Pin, PUMP_RELAY_ON);
+                    HAL_GPIO_WritePin(LD2_GPIO_Port,LD2_Pin, GPIO_PIN_SET);
                     irrigation_pump[i].on_pump = true;
                     irrigation_pump[i].on_pump_start_time = HAL_GetTick();
                 }
